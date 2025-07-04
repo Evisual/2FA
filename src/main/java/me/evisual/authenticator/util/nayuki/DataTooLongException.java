@@ -1,4 +1,4 @@
-package me.evisual.authenticator.util;
+package me.evisual.authenticator.util.nayuki;
 /*
  * QR Code generator library (Java)
  *

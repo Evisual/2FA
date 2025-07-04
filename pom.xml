@@ -6,7 +6,7 @@
 
     <groupId>me.evisual</groupId>
     <artifactId>Authenticator</artifactId>
-    <version>0.0.1-DEVELOPMENT</version>
+    <version>0.0.0.2-DEVELOPMENT</version>
     <name>Authenticator</name>
     <packaging>jar</packaging>
 
