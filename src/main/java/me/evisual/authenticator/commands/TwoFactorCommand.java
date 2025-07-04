@@ -2,22 +2,38 @@ package me.evisual.authenticator.commands;
 
 import me.evisual.authenticator.Authenticator;
 import me.evisual.authenticator.security.TotpVerifier;
+import me.evisual.authenticator.util.commands.Command;
+import me.evisual.authenticator.util.commands.SuperCommand;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class TwoFactorCommand implements CommandExecutor
+import java.util.ArrayList;
+import java.util.List;
+
+public class TwoFactorCommand extends SuperCommand
 {
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
+    private final Authenticator plugin;
+    private final Command[] commands;
+
+    public TwoFactorCommand(@NotNull String command, @Nullable String permission, Authenticator plugin)
     {
-        // Sanity check -- should never happen
-        if (!cmd.getName().equalsIgnoreCase("2fa")) return true; // TODO: Add aliases
+        super(command, permission);
 
-        // Check for arguments (none added yet)
+        this.plugin = plugin;
 
+        this.commands = new Command[] {};
+
+
+    }
+
+    @Override
+    public boolean runCommand(@NotNull CommandSender sender, @NotNull String[] args)
+    {
+        // TODO: In the future, this needs to be made a lot safer. There's many ways
+        // to cause this method to break unintentionally as it's not very robust
         if(!(sender instanceof Player player))
         {
             // In theory a check could be added to 2fa the console on reboot, for now
@@ -35,7 +51,47 @@ public class TwoFactorCommand implements CommandExecutor
         }
 
         TotpVerifier verifier = new TotpVerifier();
-        verifier.verifyCode(secret, args[0]);
+        if(verifier.verifyCode(secret, args[0]))
+            player.sendMessage(ChatColor.GREEN + "Authenticated!");
+        else
+            player.sendMessage(ChatColor.RED + "Wrong Code!");
         return true;
+    }
+
+    @Override
+    public void subCommandNotFoundEvent(@NotNull CommandSender sender) {
+        sender.sendMessage(ChatColor.RED + "Not found"); // TODO: Update with actual messages
+    }
+
+    @Override
+    public void noPermissionEvent(@NotNull CommandSender sender) {
+        sender.sendMessage(ChatColor.RED + "No permission"); // TODO: Update with actual messages
+    }
+
+    @Override
+    public @NotNull Command[] getSubCommands() {
+        return this.commands;
+    }
+
+
+
+    @Override
+    public List<String> tabOptions(@NotNull CommandSender sender, @NotNull String[] args) {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public @NotNull String getUsage() {
+        return "";
+    }
+
+    @Override
+    public @NotNull String getDescription() {
+        return "";
+    }
+
+    @Override
+    public @NotNull String[] getAliases() {
+        return new String[0];
     }
 }

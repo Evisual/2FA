@@ -26,14 +26,15 @@ public class Authenticator extends JavaPlugin implements Listener {
     private final String pluginName = "Authenticator"; // TODO: Update to be configurable
 
     // I hate this -- will be removed ASAP
-    @Getter
-    private static Authenticator instance;
+    private static @Getter Authenticator instance;
 
     @Override
     public void onEnable()
     {
         Bukkit.getPluginManager().registerEvents(this, this);
-        Bukkit.getPluginCommand("2fa").setExecutor(new TwoFactorCommand());
+
+        new TwoFactorCommand("2fa", null, this).registerCommand(this);
+
         instance = this;
     }
 
