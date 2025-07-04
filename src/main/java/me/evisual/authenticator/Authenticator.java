@@ -1,5 +1,7 @@
 package me.evisual.authenticator;
 
+import lombok.Getter;
+import me.evisual.authenticator.commands.TwoFactorCommand;
 import me.evisual.authenticator.security.*;
 import me.evisual.authenticator.util.ImageDecoder;
 import me.evisual.authenticator.util.MapItemFactory;
@@ -23,10 +25,21 @@ public class Authenticator extends JavaPlugin implements Listener {
     private final ConcurrentHashMap<UUID, String> secrets = new ConcurrentHashMap<>();
     private final String pluginName = "Authenticator"; // TODO: Update to be configurable
 
+    // I hate this -- will be removed ASAP
+    @Getter
+    private static Authenticator instance;
+
     @Override
     public void onEnable()
     {
         Bukkit.getPluginManager().registerEvents(this, this);
+        Bukkit.getPluginCommand("2fa").setExecutor(new TwoFactorCommand());
+        instance = this;
+    }
+
+    public String getSecret(UUID uuid)
+    {
+        return secrets.get(uuid);
     }
 
     @EventHandler
@@ -56,25 +69,6 @@ public class Authenticator extends JavaPlugin implements Listener {
             ex.printStackTrace();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
-        }
-    }
-
-    @EventHandler
-    public void onChat(AsyncPlayerChatEvent e) {
-        UUID uuid = e.getPlayer().getUniqueId();
-        String secret = secrets.get(uuid);
-        if (secret == null) {
-            e.getPlayer().sendMessage(ChatColor.RED + "You haven't generated a 2FA QR yet. Rejoin to get one.");
-            return;
-        }
-
-        TotpVerifier verifier = new TotpVerifier();
-        boolean valid = verifier.verifyCode(secret, e.getMessage().trim());
-        if (valid) {
-            e.getPlayer().sendMessage(ChatColor.GREEN + "✅ Code valid!");
-            // you could remove the secret or mark the player as authenticated here
-        } else {
-            e.getPlayer().sendMessage(ChatColor.RED + "❌ Code invalid.");
         }
     }
 }
